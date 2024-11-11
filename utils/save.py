@@ -14,11 +14,11 @@ def save_lr_curve(H, out_dir: str, f_name=None):
         model : trained model (keras)
         out_dir (str): directory path for saving
     """
-    f_name = 'learning_curve' if not f_name else f_name
-    plt.figure(figsize=(18, 5))
-    plt.rcParams["font.size"] = 18
-    plt.plot(H.history['loss'])
-    plt.plot(H.history['val_loss'])
+    f_name = 'learning_curve' if not f_name else f_name # 檔名
+    plt.figure(figsize=(18, 5)) # 建立圖表
+    plt.rcParams["font.size"] = 18 # 字體大小為 18。
+    plt.plot(H.history['loss']) # 繪製訓練損失曲線
+    plt.plot(H.history['val_loss']) # 繪製驗證損失曲線
     plt.title('model loss')
     plt.ylabel('loss')
     plt.xlabel('epoch')
