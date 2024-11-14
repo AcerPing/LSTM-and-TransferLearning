@@ -95,10 +95,13 @@ def save_mse(y_test_time: np.array, y_pred_test_time: np.array, out_dir: str, mo
         out_dir (str): directory path for saving
         model : trained model (keras)
     """
-    accuracy = mse(y_test_time, y_pred_test_time)
-    with open(path.join(out_dir, 'log.txt'), 'w') as f:
+    accuracy = mse(y_test_time, y_pred_test_time) # 計算均方誤差
+    with open(path.join(out_dir, 'log.txt'), 'w') as f: # 寫入文件
         f.write('accuracy : {:.6f}\n'.format(accuracy))
         f.write('=' * 65 + '\n')
         if model:
-            model.summary(print_fn=lambda x: f.write(x + '\n'))
+            model.summary(print_fn=lambda x: f.write(x + '\n')) # 將模型摘要資訊寫入文件。
     return accuracy
+
+
+# TODO: 需要額外畫製曲線 -- 殘差圖（Residual Plot）、誤差直方圖（Error Histogram）

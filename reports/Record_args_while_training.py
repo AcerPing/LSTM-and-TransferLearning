@@ -1,7 +1,7 @@
 from datetime import datetime
 
-def Record_args_while_training(source, nb_batch, bsize, period, data_size):
-    with open(f"reports/result/pre-train/nb_batch{nb_batch} training_parameters.txt", "a") as f:
+def Record_args_while_training(train_mode, source, nb_batch, bsize, period, data_size):
+    with open(f"reports/result/{train_mode}/nb_batch{nb_batch} training_parameters.txt", "a") as f:
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         f.write(f"\n[{current_time}]\n")
         f.write(f"訓練資料集 {source} 時的參數：\n")

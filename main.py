@@ -10,7 +10,8 @@ import keras
 from sklearn.model_selection import train_test_split
 from keras.models import load_model
 from keras.callbacks import CSVLogger, ModelCheckpoint, ReduceLROnPlateau # --, EarlyStopping
-from recombinator.optimal_block_length import optimal_block_length
+from recombinator.optimal_block_length import optimal_block_length # 根據數據的特性，計算序列數據的最佳區塊長度（block length）。
+# ↑ 區塊長度的意義：區塊長度越長，數據的時間依賴性被保留得越多，但隨機性減少；區塊長度越短，數據更具隨機性，但可能失去時間依賴信息。
 from recombinator.block_bootstrap import circular_block_bootstrap # 用於對具有時間依賴性的數據進行重抽樣，在不打破數據時間依賴性的情況下生成新的數據。採用的是循環抽樣的方式，這意味著當抽樣到序列尾端時，可以回到序列開頭繼續抽樣。
 
 from utils.model import build_model
@@ -48,7 +49,7 @@ def parse_arguments():
     ap.add_argument('--nb-batch', default=20, type=int,
                     help='number of batches in training (default : 20)') # 設定訓練過程中的批次數量，預設為 20。 批次大小（batch size） = 總訓練樣本數量 ÷ 批次數量（nb-batch）
     ap.add_argument('--nb-subset', default=10, type=int,
-                    help='number of data subset in bootstrapping (default : 10)') # 在bootstrapping中設定資料子集的數量。
+                    help='number of data subset in bootstrapping (default : 10)') # 在bootstrapping中(即Bagging集成式學習)設定資料子集的數量。EX. 生成 10 個不同的訓練子集。
     ap.add_argument('--noise-var', default=0.0001, type=float,
                     help='variance of noise in noise injection (default : 0.0001)') # 在噪聲注入中設定噪聲的變異數。
     ap.add_argument('--valid-ratio', default=0.2, type=float,
@@ -136,7 +137,7 @@ def main():
             RTG = ReccurentTrainingGenerator(X_train, y_train, batch_size=bsize, timesteps=period, delay=1) # 創建訓練數據
             RVG = ReccurentTrainingGenerator(X_valid, y_valid, batch_size=bsize, timesteps=period, delay=1) # 創建驗證數據
             print('開始訓練model模型')
-            Record_args_while_training(source, args['nb_batch'], bsize, period, data_size=(len(y_train) + len(y_test)))
+            Record_args_while_training(args["train_mode"], source, args['nb_batch'], bsize, period, data_size=(len(y_train) + len(y_test)))
             H = model.fit_generator(RTG, validation_data=RVG, epochs=args["nb_epochs"], verbose=1, callbacks=callbacks) # 訓練模型
             # except tf.errors.ResourceExhaustedError as e: print("Encountered OOM error:", e) # 在OOM發生時列出當前分配的張量。
             save_lr_curve(H, write_result_out_dir) # 保存每個epoch的學習曲線
@@ -186,6 +187,7 @@ def main():
                 bsize = len(y_train) // args["nb_batch"] # 計算批次大小batch_size # --min
                 RTG = ReccurentTrainingGenerator(X_train, y_train, batch_size=bsize, timesteps=period, delay=1) # 生成訓練數據，以批次形式提供給模型。
                 RVG = ReccurentTrainingGenerator(X_valid, y_valid, batch_size=bsize, timesteps=period, delay=1) # 生成驗證數據，以批次形式提供給模型。
+                Record_args_while_training(args["train_mode"], target, args['nb_batch'], bsize, period, data_size=(len(y_train) + len(y_test)))
                 H = model.fit_generator(RTG, validation_data=RVG, epochs=args["nb_epochs"], verbose=1, callbacks=callbacks) # 訓練模型
                 save_lr_curve(H, write_result_out_dir) # 繪製學習曲線
                 
@@ -204,7 +206,7 @@ def main():
                 keras.backend.clear_session() # 釋放記憶體
                 print('\n' * 2 + '-' * 140 + '\n' * 2)
     
-    elif args["train_mode"] == 'without-transfer-learning':
+    elif args["train_mode"] == 'without-transfer-learning': # 不使用遷移學習
 
         for target in listdir('dataset/target'):
         
@@ -212,11 +214,11 @@ def main():
             write_result_out_dir = path.join(write_out_dir, args["train_mode"], target)
             makedirs(write_result_out_dir, exist_ok=True)
 
-            # load dataset
+            # load dataset (加載數據集並分割為訓練和驗證集)
             data_dir_path = path.join('dataset', 'target', target)
             X_train, y_train, X_test, y_test = \
                 read_data_from_dataset(data_dir_path)
-            period = (len(y_train) + len(y_test)) // 30
+            period = (len(y_train) + len(y_test)) // 30 # period：表示時間步數（time steps）， 等同於sequence_length，即模型在每次輸入中考慮的過去觀測值的數量。 # --min
             X_train, X_valid, y_train, y_valid =  \
                 train_test_split(X_train, y_train, test_size=args["valid_ratio"], shuffle=False)
             print(f'\nTarget dataset : {target}')
@@ -224,37 +226,37 @@ def main():
             print(f'\nX_valid : {X_valid.shape[0]}')
             print(f'\nX_test : {X_test.shape[0]}')
             
-            # construct the model
+            # construct the model (構建模型)
             file_path = path.join(write_result_out_dir, 'best_model.hdf5')
             callbacks = make_callbacks(file_path)
             input_shape = (period, X_train.shape[1])
             model = build_model(input_shape, args["gpu"], write_result_out_dir)
             
-            # train the model
-            bsize = len(y_train) // args["nb_batch"]
-            RTG = ReccurentTrainingGenerator(X_train, y_train, batch_size=bsize, timesteps=period, delay=1)
-            RVG = ReccurentTrainingGenerator(X_valid, y_valid, batch_size=bsize, timesteps=period, delay=1)
-            H = model.fit_generator(RTG, validation_data=RVG, epochs=args["nb_epochs"], verbose=1, callbacks=callbacks)
-            save_lr_curve(H, write_result_out_dir)
+            # train the model (訓練模型)
+            bsize = len(y_train) // args["nb_batch"] # 計算批次大小batch_size # --min
+            RTG = ReccurentTrainingGenerator(X_train, y_train, batch_size=bsize, timesteps=period, delay=1) # 生成訓練數據，以批次形式提供給模型。
+            RVG = ReccurentTrainingGenerator(X_valid, y_valid, batch_size=bsize, timesteps=period, delay=1) # 生成驗證數據，以批次形式提供給模型。
+            H = model.fit_generator(RTG, validation_data=RVG, epochs=args["nb_epochs"], verbose=1, callbacks=callbacks) # 訓練模型
+            save_lr_curve(H, write_result_out_dir) # 繪製學習曲線
 
-            # prediction
+            # prediction (預測)
             best_model = load_model(file_path)
-            RPG = ReccurentPredictingGenerator(X_test, batch_size=1, timesteps=period)
-            y_test_pred = best_model.predict_generator(RPG)
+            RPG = ReccurentPredictingGenerator(X_test, batch_size=1, timesteps=period) # 生成測試數據。
+            y_test_pred = best_model.predict_generator(RPG) # 預測測試數據
 
-            # save log for the model
-            y_test = y_test[-len(y_test_pred):]
-            save_prediction_plot(y_test, y_test_pred, write_result_out_dir)
-            save_yy_plot(y_test, y_test_pred, write_result_out_dir)
-            mse_score = save_mse(y_test, y_test_pred, write_result_out_dir, model=best_model)
+            # save log for the model (計算MSE誤差和保存結果)
+            y_test = y_test[-len(y_test_pred):] # 將y_test的長度調整為與 y_test_pred（模型預測值）的長度一致，確保在進行計算和可視化時，兩者長度相符。。
+            save_prediction_plot(y_test, y_test_pred, write_result_out_dir) # 繪製y_test與y_test_pred的對比圖，展示預測值與實際值的偏差 (折線圖)
+            save_yy_plot(y_test, y_test_pred, write_result_out_dir) # 繪製y_test與y_test_pred的對比圖，展示預測值與實際值的偏差 (散點圖)
+            mse_score = save_mse(y_test, y_test_pred, write_result_out_dir, model=best_model) # 計算y_test和y_test_pred之間的均方誤差（MSE）分數，
             args["mse"] = mse_score
-            save_arguments(args, write_result_out_dir)
+            save_arguments(args, write_result_out_dir) # 保存本次訓練或測試的所有參數設定及結果。
 
-            # clear memory up
+            # clear memory up (清理記憶體)
             keras.backend.clear_session()
             print('\n' * 2 + '-' * 140 + '\n' * 2)
 
-    elif args["train_mode"] == 'bagging':
+    elif args["train_mode"] == 'bagging': # 使用Bagging集成式學習。通過對數據集進行多次重抽樣，生成多個訓練子集，並在這些子集上訓練多個模型，最終通過聚合來提升預測穩定性。
     
         for target in listdir('dataset/target'):
             
@@ -262,36 +264,36 @@ def main():
             write_result_out_dir = path.join(write_out_dir, args["train_mode"], target)
             makedirs(write_result_out_dir, exist_ok=True)
 
-            # load dataset
+            # load dataset (加載數據集)
             data_dir_path = path.join('dataset', 'target', target)
             X_train, y_train, X_test, y_test = \
                 read_data_from_dataset(data_dir_path)
-            period = (len(y_train) + len(y_test)) // 30
+            period = (len(y_train) + len(y_test)) // 30 # period：表示時間步數（time steps）， 等同於sequence_length，即模型在每次輸入中考慮的過去觀測值的數量。 # --min
 
-            # make subsets
-            b_star = optimal_block_length(y_train)
-            b_star_cb = math.ceil(b_star[0].b_star_cb)
+            # make subsets (計算最佳區塊長度並生成訓練子集)
+            b_star = optimal_block_length(y_train) # 計算最佳的區塊長度（b_star），然後使用該長度來生成適合時間依賴性的數據子集。
+            b_star_cb = math.ceil(b_star[0].b_star_cb) # 向上取整，確保區塊長度為整數。
             print(f'optimal block length for circular bootstrap = {b_star_cb}')
             subsets_y_train = circular_block_bootstrap(y_train, block_length=b_star_cb,
-                                                       replications=args["nb_subset"], replace=True)
+                                                       replications=args["nb_subset"], replace=True) # 根據計算出的區塊長度，對 y_train 進行 nb_subset 次重抽樣，生成多個子集。
             subsets_X_train = []
-            for i in range(X_train.shape[1]):
-                np.random.seed(0)
+            for i in range(X_train.shape[1]): # 對X_train的每個特徵使用相同的方法進行 Circular Block Bootstrap 重抽樣，生成多個 X_train 子集，並重新排列以匹配模型輸入格式。
+                np.random.seed(0) # 確保重現性
                 X_cb = circular_block_bootstrap(X_train[:, i], block_length=b_star_cb,
-                                                replications=args["nb_subset"], replace=True)
+                                                replications=args["nb_subset"], replace=True) # 對每個特徵資料進行重抽樣，生成多個子集，並將結果儲存到 subsets_X_train 列表中。
                 subsets_X_train.append(X_cb)
-            subsets_X_train = np.array(subsets_X_train)
-            subsets_X_train = subsets_X_train.transpose(1, 2, 0)
+            subsets_X_train = np.array(subsets_X_train) # 將 subsets_X_train 轉換為 NumPy 陣列
+            subsets_X_train = subsets_X_train.transpose(1, 2, 0) # 使用 transpose 方法調整其形狀，使其符合模型輸入的格式。形狀變為 (子集數量, 樣本數, 特徵數)
 
-            # train the model for each subset
+            # train the model for each subset (對每個子集訓練模型)
             model_dir = path.join(write_result_out_dir, 'model')
             makedirs(model_dir, exist_ok=True)
             for i_subset, (i_X_train, i_y_train) in enumerate(zip(subsets_X_train, subsets_y_train)):
                 
                 i_X_train, i_X_valid, i_y_train, i_y_valid = \
-                    train_test_split(i_X_train, i_y_train, test_size=args["valid_ratio"], shuffle=False)
+                    train_test_split(i_X_train, i_y_train, test_size=args["valid_ratio"], shuffle=False) # 每個子集分成訓練集和驗證集。
                 
-                # construct the model
+                # construct the model (每個子集將會訓練一個模型，這些模型最終將被集合使用，以增加預測的穩定性和泛化能力。)
                 file_path = path.join(model_dir, f'best_model_{i_subset}.hdf5')
                 callbacks = make_callbacks(file_path, save_csv=False)
                 input_shape = (period, i_X_train.shape[1])  # x_train.shape[2] is number of variable
@@ -299,11 +301,11 @@ def main():
 
                 # train the model
                 bsize = len(i_y_train) // args["nb_batch"]
-                RTG = ReccurentTrainingGenerator(i_X_train, i_y_train, batch_size=bsize, timesteps=period, delay=1)
-                RVG = ReccurentTrainingGenerator(i_X_valid, i_y_valid, batch_size=bsize, timesteps=period, delay=1)
-                H = model.fit_generator(RTG, validation_data=RVG, epochs=args["nb_epochs"], verbose=1, callbacks=callbacks)
+                RTG = ReccurentTrainingGenerator(i_X_train, i_y_train, batch_size=bsize, timesteps=period, delay=1) # 生成訓練數據，以批次形式提供給模型。
+                RVG = ReccurentTrainingGenerator(i_X_valid, i_y_valid, batch_size=bsize, timesteps=period, delay=1) # 生成驗證數據，以批次形式提供給模型。
+                H = model.fit_generator(RTG, validation_data=RVG, epochs=args["nb_epochs"], verbose=1, callbacks=callbacks) # 訓練模型
             
-            keras.backend.clear_session()
+            keras.backend.clear_session() # 清理記憶體
             print('\n' * 2 + '-' * 140 + '\n' * 2)
 
     elif args["train_mode"] == 'noise-injection':
