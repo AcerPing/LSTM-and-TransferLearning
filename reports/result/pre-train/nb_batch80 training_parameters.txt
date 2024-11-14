@@ -1,0 +1,42 @@
+
+[2024-11-13 15:56:04]
+訓練資料集 air_quality 時的參數：
+Number of Batches (args['nb_batch']): 80
+Batch Size (bsize): 93
+Sequence Length (period): 311
+
+[2024-11-13 15:56:11]
+訓練資料集 appliances 時的參數：
+Number of Batches (args['nb_batch']): 80
+Batch Size (bsize): 197
+Sequence Length (period): 657
+
+[2024-11-13 15:56:22]
+訓練資料集 beijing_pm2.5 時的參數：
+Number of Batches (args['nb_batch']): 80
+Batch Size (bsize): 438
+Sequence Length (period): 1460
+
+[2024-11-13 15:56:50]
+訓練資料集 electricity 時的參數：
+Number of Batches (args['nb_batch']): 80
+Batch Size (bsize): 263
+Sequence Length (period): 876
+
+[2024-11-13 15:57:02]
+訓練資料集 exchange_rate 時的參數：
+Number of Batches (args['nb_batch']): 80
+Batch Size (bsize): 75
+Sequence Length (period): 252
+
+[2024-11-13 15:57:07]
+訓練資料集 metro_interstate 時的參數：
+Number of Batches (args['nb_batch']): 80
+Batch Size (bsize): 482
+Sequence Length (period): 1606
+
+[2024-11-13 15:57:41]
+訓練資料集 solar_energy 時的參數：Error
+Number of Batches (args['nb_batch']): 80
+Batch Size (bsize): 525
+Sequence Length (period): 1750

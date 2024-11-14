@@ -11,7 +11,7 @@ __pycache__/
 venv/
 
 # results
-reports/
+reports/result/transfer-learning/
 job_archive/
 
 # job execution

@@ -1,0 +1,18 @@
+
+[2024-11-13 15:30:27]
+訓練資料集 air_quality 時的參數：
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 374
+Sequence Length (period): 311
+
+[2024-11-13 15:30:31]
+訓練資料集 appliances 時的參數：
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 789
+Sequence Length (period): 657
+
+[2024-11-13 15:30:40]
+訓練資料集 beijing_pm2.5 時的參數：Error
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 1752
+Sequence Length (period): 1460
