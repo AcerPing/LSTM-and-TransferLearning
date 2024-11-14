@@ -20,7 +20,8 @@ from utils.data_io import (
     ReccurentPredictingGenerator
 )
 from utils.save import save_lr_curve, save_prediction_plot, save_yy_plot, save_mse
-from utils.device import limit_gpu_memory
+from utils.device import limit_gpu_memory # 限制 TensorFlow 對 GPU 記憶體的預留或使用量。
+from reports.Record_args_while_training import Record_args_while_training # 紀錄訓練時的nb_batch、bsize、period
 
 
 def parse_arguments():
@@ -88,7 +89,7 @@ def make_callbacks(file_path, save_csv=True):
 def main():
 
     # make analysis environment
-    limit_gpu_memory() # 限制GPU記憶體使用量，避免因為分配過多而造成系統不穩定。
+    limit_gpu_memory() # 限制GPU記憶體使用量，避免因為分配過多而造成系統不穩定。然而當使用量超出設定的限制後，仍然可能發生OOM錯誤。
     args = parse_arguments() # 解析參數
     seed_every_thing(args["seed"]) # 設定隨機種子，在每次運行時產生一致的結果。
     write_out_dir = path.normpath(path.join(getcwd(), 'reports', args["out_dir"])) # 輸出文件的存放路徑
@@ -112,15 +113,16 @@ def main():
             # load dataset
             X_train, y_train, X_test, y_test = \
                 read_data_from_dataset(data_dir_path) # 讀取'X_train', 'y_train', 'X_test', 'y_test'資料
-            period = (len(y_train) + len(y_test)) // 30 # period：表示時間步數（time steps），即模型在每次輸入中考慮的過去觀測值的數量。
+            period = (len(y_train) + len(y_test)) // 30 # period：表示時間步數（time steps）， 等同於sequence_length，即模型在每次輸入中考慮的過去觀測值的數量。 # --min
             X_train = np.concatenate((X_train, X_test), axis=0)  # > no need for test data when pre-training
             y_train = np.concatenate((y_train, y_test), axis=0)  # > no need for test data when pre-training
-            print(f'切分比例: {args["valid_ratio"]}')
             X_train, X_valid, y_train, y_valid =  \
                 train_test_split(X_train, y_train, test_size=args["valid_ratio"], shuffle=False) # 不隨機打亂數據 (shuffle=False)
             print(f'\nSource dataset : {source}')
             print(f'\nX_train : {X_train.shape[0]}')
             print(f'\nX_valid : {X_valid.shape[0]}')
+            print(f'切分比例: {args["valid_ratio"]}')
+            print(f'sequence_length:{period}, args["nb_batch"]: {args["nb_batch"]}')
             
             # construct the model
             file_path = path.join(write_result_out_dir, 'best_model.hdf5') # 指定模型的保存路徑
@@ -129,10 +131,14 @@ def main():
             model = build_model(input_shape, args["gpu"], write_result_out_dir)
             
             # train the model
-            bsize = len(y_train) // args["nb_batch"] # 計算批次大小batch_size
+            bsize = len(y_train) // args["nb_batch"] # 計算批次大小batch_size # --min
+            print(f'計算批次大小batch_size: {bsize}')
             RTG = ReccurentTrainingGenerator(X_train, y_train, batch_size=bsize, timesteps=period, delay=1) # 創建訓練數據
             RVG = ReccurentTrainingGenerator(X_valid, y_valid, batch_size=bsize, timesteps=period, delay=1) # 創建驗證數據
+            print('開始訓練model模型')
+            Record_args_while_training(source, args['nb_batch'], bsize, period, data_size=(len(y_train) + len(y_test)))
             H = model.fit_generator(RTG, validation_data=RVG, epochs=args["nb_epochs"], verbose=1, callbacks=callbacks) # 訓練模型
+            # except tf.errors.ResourceExhaustedError as e: print("Encountered OOM error:", e) # 在OOM發生時列出當前分配的張量。
             save_lr_curve(H, write_result_out_dir) # 保存每個epoch的學習曲線
 
             # clear memory up (清理記憶體並保存參數)
@@ -140,60 +146,62 @@ def main():
             save_arguments(args, write_result_out_dir) # 保存訓練參數 (args) 到結果輸出目錄中。
             print('\n' * 2 + '-' * 140 + '\n' * 2)
     
-    elif args["train_mode"] == 'transfer-learning':
+    elif args["train_mode"] == 'transfer-learning': # 使用遷移學習來訓練模型，從預訓練模型中提取權重並應用於新數據集。
         
         for target in listdir('dataset/target'):
         
             # skip target in the absence of pickle file
             if not path.exists(f'dataset/target/{target}/X_train.pkl'): continue
 
-            for source in listdir(f'{write_out_dir}/pre-train'):
+            for source in listdir(f'{write_out_dir}/pre-train'): # 遍歷預訓練的模型，對每個模型進行遷移學習。
                 
                 # make output directory
-                write_result_out_dir = path.join(write_out_dir, args["train_mode"], target, source)
-                pre_model_path = f'{write_out_dir}/pre-train/{source}/best_model.hdf5'
+                write_result_out_dir = path.join(write_out_dir, args["train_mode"], target, source) # 保存結果的目錄
+                pre_model_path = f'{write_out_dir}/pre-train/{source}/best_model.hdf5' # 確保預訓練模型權重存在。
                 if not path.exists(pre_model_path): continue
                 makedirs(write_result_out_dir, exist_ok=True)
                     
-                # load dataset
+                # load dataset (加載目標數據集)
                 data_dir_path = f'dataset/target/{target}'
                 X_train, y_train, X_test, y_test = \
                     read_data_from_dataset(data_dir_path)
-                period = (len(y_train) + len(y_test)) // 30
+                period = (len(y_train) + len(y_test)) // 30 # period：表示時間步數（time steps）， 等同於sequence_length，即模型在每次輸入中考慮的過去觀測值的數量。 # --min
                 X_train, X_valid, y_train, y_valid = \
-                    train_test_split(X_train, y_train, test_size=args["valid_ratio"], shuffle=False)
+                    train_test_split(X_train, y_train, test_size=args["valid_ratio"], shuffle=False) # 將訓練集分割為訓練和驗證。
                 print(f'\nTarget dataset : {target}')
                 print(f'\nX_train : {X_train.shape[0]}')
                 print(f'\nX_valid : {X_valid.shape[0]}')
                 print(f'\nX_test : {X_test.shape[0]}')
                 
-                # construct the model
-                pre_model = load_model(pre_model_path)
+                # construct the model (構建並編譯模型)
+                pre_model = load_model(pre_model_path) # 加載預訓練模型的權重。
                 file_path = path.join(write_result_out_dir, 'transferred_best_model.hdf5')
                 callbacks = make_callbacks(file_path)
-                input_shape = (period, X_train.shape[1])
-                model = build_model(input_shape, args["gpu"], write_result_out_dir, pre_model=pre_model, freeze=args["freeze"])
+                input_shape = (period, X_train.shape[1]) # (timesteps, features)，period表示時間步數，X_train.shape[1]為欄位特徵。
+                print(f'在遷移學習中，是否凍結權重: {args["freeze"]}')
+                print('開始建立模型')
+                model = build_model(input_shape, args["gpu"], write_result_out_dir, pre_model=pre_model, freeze=args["freeze"]) # 構建遷移學習模型 # freeze參數決定是否凍結預訓練模型的層，以避免在遷移學習中微調它們。
         
-                # train the model
-                bsize = len(y_train) // args["nb_batch"]
-                RTG = ReccurentTrainingGenerator(X_train, y_train, batch_size=bsize, timesteps=period, delay=1)
-                RVG = ReccurentTrainingGenerator(X_valid, y_valid, batch_size=bsize, timesteps=period, delay=1)
-                H = model.fit_generator(RTG, validation_data=RVG, epochs=args["nb_epochs"], verbose=1, callbacks=callbacks)
-                save_lr_curve(H, write_result_out_dir)
+                # train the model (訓練模型)
+                bsize = len(y_train) // args["nb_batch"] # 計算批次大小batch_size # --min
+                RTG = ReccurentTrainingGenerator(X_train, y_train, batch_size=bsize, timesteps=period, delay=1) # 生成訓練數據，以批次形式提供給模型。
+                RVG = ReccurentTrainingGenerator(X_valid, y_valid, batch_size=bsize, timesteps=period, delay=1) # 生成驗證數據，以批次形式提供給模型。
+                H = model.fit_generator(RTG, validation_data=RVG, epochs=args["nb_epochs"], verbose=1, callbacks=callbacks) # 訓練模型
+                save_lr_curve(H, write_result_out_dir) # 繪製學習曲線
                 
-                # prediction
-                best_model = load_model(file_path)
-                RPG = ReccurentPredictingGenerator(X_test, batch_size=1, timesteps=period)
-                y_test_pred = best_model.predict_generator(RPG)
+                # prediction (進行預測並保存結果)
+                best_model = load_model(file_path) # 加載模型
+                RPG = ReccurentPredictingGenerator(X_test, batch_size=1, timesteps=period) # 生成測試數據。
+                y_test_pred = best_model.predict_generator(RPG) # 預測測試數據
 
-                # save log for the model
-                y_test = y_test[-len(y_test_pred):]
-                save_prediction_plot(y_test, y_test_pred, write_result_out_dir)
-                save_yy_plot(y_test, y_test_pred, write_result_out_dir)
-                mse_score = save_mse(y_test, y_test_pred, write_result_out_dir, model=best_model)
+                # save log for the model (計算MSE並保存結果)
+                y_test = y_test[-len(y_test_pred):] # 將y_test的長度調整為與 y_test_pred（模型預測值）的長度一致，確保在進行計算和可視化時，兩者長度相符。。
+                save_prediction_plot(y_test, y_test_pred, write_result_out_dir) # 繪製y_test與y_test_pred的對比圖，展示預測值與實際值的偏差 (折線圖)
+                save_yy_plot(y_test, y_test_pred, write_result_out_dir) # 繪製y_test與y_test_pred的對比圖，展示預測值與實際值的偏差 (散點圖)
+                mse_score = save_mse(y_test, y_test_pred, write_result_out_dir, model=best_model) # 計算y_test和y_test_pred之間的均方誤差（MSE）分數，
                 args["mse"] = mse_score
-                save_arguments(args, write_result_out_dir)
-                keras.backend.clear_session()
+                save_arguments(args, write_result_out_dir) # 保存本次訓練或測試的所有參數設定及結果。
+                keras.backend.clear_session() # 釋放記憶體
                 print('\n' * 2 + '-' * 140 + '\n' * 2)
     
     elif args["train_mode"] == 'without-transfer-learning':

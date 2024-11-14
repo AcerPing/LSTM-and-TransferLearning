@@ -41,7 +41,7 @@ def build_model(input_shape: tuple, # 模型的輸入形狀(timesteps, features)
         dense = TimeDistributed(
             Dense(
                 10,
-                kernel_regularizer=regularizers.l2(0.01),
+                kernel_regularizer=regularizers.l2(0.01), # 正則化
                 kernel_initializer=initializers.glorot_uniform(seed=0),
                 bias_initializer=initializers.Zeros()
             )
@@ -50,7 +50,7 @@ def build_model(input_shape: tuple, # 模型的輸入形狀(timesteps, features)
     lstm1 = LSTM(
         60,
         return_sequences=True,
-        kernel_regularizer=regularizers.l2(0.01),
+        kernel_regularizer=regularizers.l2(0.01), # 正則化
         kernel_initializer=initializers.glorot_uniform(seed=0),
         recurrent_initializer=initializers.Orthogonal(seed=0),
         bias_initializer=initializers.Zeros()
@@ -60,7 +60,7 @@ def build_model(input_shape: tuple, # 模型的輸入形狀(timesteps, features)
     lstm2 = LSTM(
         60,
         return_sequences=False,
-        kernel_regularizer=regularizers.l2(0.01),
+        kernel_regularizer=regularizers.l2(0.01), # 正則化
         kernel_initializer=initializers.glorot_uniform(seed=0),
         recurrent_initializer=initializers.Orthogonal(seed=0),
         bias_initializer=initializers.Zeros()
@@ -70,7 +70,7 @@ def build_model(input_shape: tuple, # 模型的輸入形狀(timesteps, features)
     output_layer = Dense(
         1,
         activation='sigmoid', # 激活函數為sigmoid，適合輸出一個範圍在0到1之間的預測結果。
-        kernel_regularizer=regularizers.l2(0.01),
+        kernel_regularizer=regularizers.l2(0.01), # 正則化
         kernel_initializer=initializers.glorot_uniform(seed=0),
         bias_initializer=initializers.Zeros()
     )(lstm2)
@@ -86,7 +86,7 @@ def build_model(input_shape: tuple, # 模型的輸入形狀(timesteps, features)
             if freeze: # 若 freeze=True，則將這些層設置為不可訓練（即權重不會在訓練中更新），這樣可以保持預訓練權重不變。
                 model.layers[i].trainable = False
             
-    model.compile(optimizer=Adam(), loss='mse', metrics=['accuracy'])
+    model.compile(optimizer=Adam(), loss='mse', metrics=['accuracy']) # metrics是模型訓練過程中用來監控模型性能的指標、評估模型的訓練效果。 # --'mse','mae','mape','msle' 
     if verbose: print(model.summary())
 
     return model

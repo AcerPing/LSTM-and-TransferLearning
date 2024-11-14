@@ -121,18 +121,18 @@ class ReccurentPredictingGenerator(Sequence): # 生成遞歸神經網路（如 L
     """ Reccurent レイヤーで予測するためのデータgeneratorクラス (用於Recurrent層預測的數據生成器類別) """ 
     def __init__(self, x_set, batch_size, timesteps):
         """
-        x_set     : 説明変数 (データ点数×特徴量数)のNumPy配列 (特徵數據的 NumPy 陣列，形狀為 (數據點數量, 特徵數))
+        x_set     : 説明変数 (データ点数×特徴量数)のNumPy配列 (特徵數據的NumPy陣列，形狀為 (樣本數, 特徵數))
         batch_size: バッチサイズ (批次大小)
         timesteps : どの程度過去からデータをReccurent層に与えるか (時間步數，即每次預測所需的過去時間步數)
         """
-        self.x = np.array(x_set)
-        self.batch_size = batch_size
-        self.steps = timesteps
+        self.x = np.array(x_set) # 將輸入的數據轉換為 NumPy 陣列
+        self.batch_size = batch_size # 批次大小
+        self.steps = timesteps # # 時間步數
         
-        self.num_samples = len(self.x)-timesteps+1 # 計算可用的數據點數量
-        self.steps_per_epoch = int(np.floor(self.num_samples / float(batch_size))) # 每個 epoch 的步數
+        self.num_samples = len(self.x)-timesteps+1 # 計算可用的樣本數。每個樣本需要有timesteps的歷史數據。
+        self.steps_per_epoch = int(np.floor(self.num_samples / float(batch_size))) # 每個epoch的步數
         
-        self.idx_list = []
+        self.idx_list = [] # 用於記錄批次索引
         
     def __len__(self):
         """ 1エポックあたりのステップ数を返す (返回每個epoch的步數，由樣本數和批次大小決定。) """
@@ -141,9 +141,9 @@ class ReccurentPredictingGenerator(Sequence): # 生成遞歸神經網路（如 L
     def __getitem__(self, idx):
         """ データをバッチにまとめて出力する (將數據整理成批次輸出) """
         start_idx = idx*self.batch_size # 計算當前批次的起始索引 start_idx。
-        batch_x = [self.x[start_idx+i : start_idx+i+self.steps] for i in range(self.batch_size)] # 根據 timesteps 生成當前批次的數據，每個樣本包含 self.steps 個時間步。
-        self.idx_list.append(start_idx)
-        return np.array(batch_x) # 形狀為 (batch_size, timesteps, 特徵數)，適合用於 RNN 預測。
+        batch_x = [self.x[start_idx+i : start_idx+i+self.steps] for i in range(self.batch_size)] # 根據timesteps生成當前批次的數據，每個樣本包含self.steps個時間步。
+        self.idx_list.append(start_idx) # 記錄當前批次的起始索引
+        return np.array(batch_x) # 返回批次數據，形狀為(batch_size, timesteps, 特徵數)，適合用於 RNN 預測。
 
 
 def decompose_time_series(x):
