@@ -72,7 +72,7 @@ def seed_every_thing(seed=1234): # 確保各種隨機操作（如資料分割、
 
 def save_arguments(args, out_dir): # 旨在將參數字典 args 以 JSON 格式保存到指定的輸出目錄 out_dir 中
     path_arguments = path.join(out_dir, 'params.json')
-    if not path.exists(path_arguments):
+    if not path.exists(path_arguments): # !注意:若 params.json 檔案已存在，則不會覆蓋檔案。
         with open(path_arguments, mode="w") as f:
             json.dump(args, f, indent=4)
 
