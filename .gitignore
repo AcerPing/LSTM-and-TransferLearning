@@ -1,5 +1,5 @@
 .vscode/
-*.ipynb
+# *.ipynb
 .ipynb_checkpoints
 *.swp
 ._*
@@ -11,7 +11,7 @@ __pycache__/
 venv/
 
 # results
-reports/result/transfer-learning/
+# reports/result/transfer-learning/
 job_archive/
 
 # job execution
