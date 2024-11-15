@@ -90,9 +90,9 @@ def save_mse(y_test_time: np.array, y_pred_test_time: np.array, out_dir: str, mo
     """save mean squared error for tareget variable
 
     Args:
-        y_test_time (np.array): observed data for target variable
-        y_pred_test_time (np.array): predicted data for target variable
-        out_dir (str): directory path for saving
+        y_test_time (np.array): observed data for target variable # 實際值
+        y_pred_test_time (np.array): predicted data for target variable # 預測值
+        out_dir (str): directory path for saving # 保存目錄
         model : trained model (keras)
     """
     accuracy = mse(y_test_time, y_pred_test_time) # 計算均方誤差
