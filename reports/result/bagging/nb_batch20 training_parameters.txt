@@ -1,0 +1,140 @@
+
+[2024-11-17 18:06:47]
+訓練資料集 debutanizer 時的參數：
+Data Size (data_size): 2394
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 19
+Sequence Length (period): 79
+
+[2024-11-17 18:07:16]
+訓練資料集 debutanizer 時的參數：
+Data Size (data_size): 2394
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 19
+Sequence Length (period): 79
+
+[2024-11-17 18:07:44]
+訓練資料集 debutanizer 時的參數：
+Data Size (data_size): 2394
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 19
+Sequence Length (period): 79
+
+[2024-11-17 18:08:12]
+訓練資料集 debutanizer 時的參數：
+Data Size (data_size): 2394
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 19
+Sequence Length (period): 79
+
+[2024-11-17 18:08:39]
+訓練資料集 debutanizer 時的參數：
+Data Size (data_size): 2394
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 19
+Sequence Length (period): 79
+
+[2024-11-17 18:09:08]
+訓練資料集 debutanizer 時的參數：
+Data Size (data_size): 2394
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 19
+Sequence Length (period): 79
+
+[2024-11-17 18:09:37]
+訓練資料集 debutanizer 時的參數：
+Data Size (data_size): 2394
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 19
+Sequence Length (period): 79
+
+[2024-11-17 18:10:06]
+訓練資料集 debutanizer 時的參數：
+Data Size (data_size): 2394
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 19
+Sequence Length (period): 79
+
+[2024-11-17 18:10:36]
+訓練資料集 debutanizer 時的參數：
+Data Size (data_size): 2394
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 19
+Sequence Length (period): 79
+
+[2024-11-17 18:11:06]
+訓練資料集 debutanizer 時的參數：
+Data Size (data_size): 2394
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 19
+Sequence Length (period): 79
+
+[2024-11-17 18:11:36]
+訓練資料集 sru 時的參數：
+Data Size (data_size): 10081
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 80
+Sequence Length (period): 336
+
+[2024-11-17 18:12:54]
+訓練資料集 sru 時的參數：
+Data Size (data_size): 10081
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 80
+Sequence Length (period): 336
+
+[2024-11-17 18:14:10]
+訓練資料集 sru 時的參數：
+Data Size (data_size): 10081
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 80
+Sequence Length (period): 336
+
+[2024-11-17 18:15:26]
+訓練資料集 sru 時的參數：
+Data Size (data_size): 10081
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 80
+Sequence Length (period): 336
+
+[2024-11-17 18:16:46]
+訓練資料集 sru 時的參數：
+Data Size (data_size): 10081
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 80
+Sequence Length (period): 336
+
+[2024-11-17 18:18:04]
+訓練資料集 sru 時的參數：
+Data Size (data_size): 10081
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 80
+Sequence Length (period): 336
+
+[2024-11-17 18:19:23]
+訓練資料集 sru 時的參數：
+Data Size (data_size): 10081
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 80
+Sequence Length (period): 336
+
+[2024-11-17 18:20:39]
+訓練資料集 sru 時的參數：
+Data Size (data_size): 10081
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 80
+Sequence Length (period): 336
+
+[2024-11-17 18:21:57]
+訓練資料集 sru 時的參數：
+Data Size (data_size): 10081
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 80
+Sequence Length (period): 336
+
+[2024-11-17 18:23:15]
+訓練資料集 sru 時的參數：
+Data Size (data_size): 10081
+Number of Batches (args['nb_batch']): 20
+Batch Size (bsize): 80
+Sequence Length (period): 336

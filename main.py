@@ -257,7 +257,7 @@ def main():
             keras.backend.clear_session()
             print('\n' * 2 + '-' * 140 + '\n' * 2)
 
-    elif args["train_mode"] == 'bagging': # 使用Bagging集成式學習。通過對數據集進行多次重抽樣，生成多個訓練子集，並在這些子集上訓練多個模型，最終通過聚合來提升預測穩定性。
+    elif args["train_mode"] == 'bagging': # 使用Bagging集成式學習。通過對數據集進行多次重抽樣，生成多個訓練子集，並在這些子集上訓練多個模型，最終通過聚合來提升預測穩定性。如隨機森林算法。
     
         for target in listdir('dataset/target'):
             
@@ -283,13 +283,16 @@ def main():
                 X_cb = circular_block_bootstrap(X_train[:, i], block_length=b_star_cb,
                                                 replications=args["nb_subset"], replace=True) # 對每個特徵資料進行重抽樣，生成多個子集，並將結果儲存到 subsets_X_train 列表中。
                 subsets_X_train.append(X_cb)
-            subsets_X_train = np.array(subsets_X_train) # 將 subsets_X_train 轉換為 NumPy 陣列
-            subsets_X_train = subsets_X_train.transpose(1, 2, 0) # 使用 transpose 方法調整其形狀，使其符合模型輸入的格式。形狀變為 (子集數量, 樣本數, 特徵數)
+            # 1.) 對每個特徵進行重抽樣，因此len(subsets_X_train)長度為特徵數，而每個元素的形狀為(nb_subset, n_samples)。即 subsets_X_train 列表的結構是 [n_features個元素，每個元素的形狀是(nb_subset, n_samples)]。
+            subsets_X_train = np.array(subsets_X_train) # 2.) 轉換為NumPy陣列，變成3D陣列，形狀為(n_features, nb_subset, n_samples)。
+            subsets_X_train = subsets_X_train.transpose(1, 2, 0) # 3.) 使用transpose轉置方法調整其形狀，使其符合模型輸入的格式。形狀變為 (nb_subset子集數量, n_samples樣本數, n_features特徵數)
 
             # train the model for each subset (對每個子集訓練模型)
             model_dir = path.join(write_result_out_dir, 'model')
             makedirs(model_dir, exist_ok=True)
-            for i_subset, (i_X_train, i_y_train) in enumerate(zip(subsets_X_train, subsets_y_train)):
+            for i_subset, (i_X_train, i_y_train) in enumerate(zip(subsets_X_train, subsets_y_train)): # 當對subsets_X_train進行迭代時，每次取出的i_X_train的形狀是(n_samples, n_features)
+                
+                print(f'i_X_train.shape, i_y_train.shape: {i_X_train.shape, i_y_train.shape}')
                 
                 i_X_train, i_X_valid, i_y_train, i_y_valid = \
                     train_test_split(i_X_train, i_y_train, test_size=args["valid_ratio"], shuffle=False) # 每個子集分成訓練集和驗證集。
@@ -297,13 +300,15 @@ def main():
                 # construct the model (每個子集將會訓練一個模型，這些模型最終將被集合使用，以增加預測的穩定性和泛化能力。)
                 file_path = path.join(model_dir, f'best_model_{i_subset}.hdf5')
                 callbacks = make_callbacks(file_path, save_csv=False)
-                input_shape = (period, i_X_train.shape[1])  # x_train.shape[2] is number of variable
+                input_shape = (period, i_X_train.shape[1])  # subsets_X_train.shape[2] is number of variable，因此i_X_train.shape[1] 對應的是特徵數，即 n_features。
+                print(f'input_shape: {input_shape}')
                 model = build_model(input_shape, args["gpu"], write_result_out_dir, savefig=False)
 
                 # train the model
                 bsize = len(i_y_train) // args["nb_batch"]
                 RTG = ReccurentTrainingGenerator(i_X_train, i_y_train, batch_size=bsize, timesteps=period, delay=1) # 生成訓練數據，以批次形式提供給模型。
                 RVG = ReccurentTrainingGenerator(i_X_valid, i_y_valid, batch_size=bsize, timesteps=period, delay=1) # 生成驗證數據，以批次形式提供給模型。
+                Record_args_while_training(args["train_mode"], target, args['nb_batch'], bsize, period, data_size=(len(y_train) + len(y_test)))
                 H = model.fit_generator(RTG, validation_data=RVG, epochs=args["nb_epochs"], verbose=1, callbacks=callbacks) # 訓練模型
             
             keras.backend.clear_session() # 清理記憶體
