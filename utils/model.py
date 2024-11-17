@@ -27,7 +27,7 @@ def build_model(input_shape: tuple, # 模型的輸入形狀(timesteps, features)
     
     print(f'是否加入噪聲: {noise}')
     if noise:
-        noise_input = GaussianNoise(np.sqrt(noise))(input_layer) # 加入高斯噪聲層，用於模擬數據的隨機變異。
+        noise_input = GaussianNoise(np.sqrt(noise))(input_layer) # 加入高斯噪聲層，用於模擬數據的隨機變異。屬於正則化技術，而非數據擴充（Data Augmentation）。np.sqrt(noise) 表示噪聲的標準差。
         dense = TimeDistributed(
             Dense(
                 10,

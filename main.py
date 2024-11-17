@@ -114,7 +114,7 @@ def main():
             # load dataset
             X_train, y_train, X_test, y_test = \
                 read_data_from_dataset(data_dir_path) # 讀取'X_train', 'y_train', 'X_test', 'y_test'資料
-            period = (len(y_train) + len(y_test)) // 30 # period：表示時間步數（time steps）， 等同於sequence_length，即模型在每次輸入中考慮的過去觀測值的數量。 # --min
+            period = (len(y_train) + len(y_test)) // 30 # period：表示時間步數（time steps），即模型在每次輸入中考慮的過去觀測值的數量。 # --min
             X_train = np.concatenate((X_train, X_test), axis=0)  # > no need for test data when pre-training
             y_train = np.concatenate((y_train, y_test), axis=0)  # > no need for test data when pre-training
             X_train, X_valid, y_train, y_valid =  \
@@ -166,7 +166,7 @@ def main():
                 data_dir_path = f'dataset/target/{target}'
                 X_train, y_train, X_test, y_test = \
                     read_data_from_dataset(data_dir_path)
-                period = (len(y_train) + len(y_test)) // 30 # period：表示時間步數（time steps）， 等同於sequence_length，即模型在每次輸入中考慮的過去觀測值的數量。 # --min
+                period = (len(y_train) + len(y_test)) // 30 # period：表示時間步數（time steps），即模型在每次輸入中考慮的過去觀測值的數量。 # --min
                 X_train, X_valid, y_train, y_valid = \
                     train_test_split(X_train, y_train, test_size=args["valid_ratio"], shuffle=False) # 將訓練集分割為訓練和驗證。
                 print(f'\nTarget dataset : {target}')
@@ -218,7 +218,7 @@ def main():
             data_dir_path = path.join('dataset', 'target', target)
             X_train, y_train, X_test, y_test = \
                 read_data_from_dataset(data_dir_path)
-            period = (len(y_train) + len(y_test)) // 30 # period：表示時間步數（time steps）， 等同於sequence_length，即模型在每次輸入中考慮的過去觀測值的數量。 # --min
+            period = (len(y_train) + len(y_test)) // 30 # period：表示時間步數（time steps），即模型在每次輸入中考慮的過去觀測值的數量。 # --min
             X_train, X_valid, y_train, y_valid =  \
                 train_test_split(X_train, y_train, test_size=args["valid_ratio"], shuffle=False)
             print(f'\nTarget dataset : {target}')
@@ -269,7 +269,7 @@ def main():
             data_dir_path = path.join('dataset', 'target', target)
             X_train, y_train, X_test, y_test = \
                 read_data_from_dataset(data_dir_path)
-            period = (len(y_train) + len(y_test)) // 30 # period：表示時間步數（time steps）， 等同於sequence_length，即模型在每次輸入中考慮的過去觀測值的數量。 # --min
+            period = (len(y_train) + len(y_test)) // 30 # period：表示時間步數（time steps），即模型在每次輸入中考慮的過去觀測值的數量。 # --min
 
             # make subsets (計算最佳區塊長度並生成訓練子集)
             b_star = optimal_block_length(y_train) # 計算最佳的區塊長度（b_star），然後使用該長度來生成適合時間依賴性的數據子集。
@@ -314,21 +314,21 @@ def main():
             keras.backend.clear_session() # 清理記憶體
             print('\n' * 2 + '-' * 140 + '\n' * 2)
 
-    elif args["train_mode"] == 'noise-injection':
+    elif args["train_mode"] == 'noise-injection': # 添加隨機噪聲來訓練模型，使模型在訓練過程中遇到更多的數據變化，減少過擬合並提高模型對測試數據的泛化能力。
 
         for target in listdir('dataset/target'):
             
-            # make output directory
+            # make output directory (設置輸出目錄)
             write_result_out_dir = path.join(write_out_dir, args["train_mode"], target)
             makedirs(write_result_out_dir, exist_ok=True)
 
-            # load dataset
+            # load dataset (加載數據集並切分為訓練和驗證集)
             data_dir_path = path.join('dataset', 'target', target)
             X_train, y_train, X_test, y_test = \
                 read_data_from_dataset(data_dir_path)
-            period = (len(y_train) + len(y_test)) // 30
+            period = (len(y_train) + len(y_test)) // 30 # period：表示時間步數（time steps），即模型在每次輸入中考慮的過去觀測值的數量。
             X_train, X_valid, y_train, y_valid =  \
-                train_test_split(X_train, y_train, test_size=args["valid_ratio"], shuffle=False)
+                train_test_split(X_train, y_train, test_size=args["valid_ratio"], shuffle=False) # 將訓練數據劃分為訓練集和驗證集。
             print(f'\nTarget dataset : {target}')
             print(f'\nX_train : {X_train.shape}')
             print(f'\nX_valid : {X_valid.shape}')
@@ -342,25 +342,25 @@ def main():
 
             # train the model
             bsize = len(y_train) // args["nb_batch"]
-            RTG = ReccurentTrainingGenerator(X_train, y_train, batch_size=bsize, timesteps=period, delay=1)
-            RVG = ReccurentTrainingGenerator(X_valid, y_valid, batch_size=bsize, timesteps=period, delay=1)
-            H = model.fit_generator(RTG, validation_data=RVG, epochs=args["nb_epochs"], verbose=1, callbacks=callbacks)
-            save_lr_curve(H, write_result_out_dir)
+            RTG = ReccurentTrainingGenerator(X_train, y_train, batch_size=bsize, timesteps=period, delay=1) # 生成訓練數據，以批次形式提供給模型。
+            RVG = ReccurentTrainingGenerator(X_valid, y_valid, batch_size=bsize, timesteps=period, delay=1) # 生成驗證數據，以批次形式提供給模型。
+            H = model.fit_generator(RTG, validation_data=RVG, epochs=args["nb_epochs"], verbose=1, callbacks=callbacks) # 訓練模型
+            save_lr_curve(H, write_result_out_dir) # 繪製學習曲線
 
             # prediction
             best_model = load_model(file_path)
-            RPG = ReccurentPredictingGenerator(X_test, batch_size=1, timesteps=period)
-            y_test_pred = best_model.predict_generator(RPG)
+            RPG = ReccurentPredictingGenerator(X_test, batch_size=1, timesteps=period) # 生成測試數據。
+            y_test_pred = best_model.predict_generator(RPG) # 預測測試數據
 
             # save log for the model
-            y_test = y_test[-len(y_test_pred):]
-            save_prediction_plot(y_test, y_test_pred, write_result_out_dir)
-            save_yy_plot(y_test, y_test_pred, write_result_out_dir)
-            mse_score = save_mse(y_test, y_test_pred, write_result_out_dir, model=best_model)
+            y_test = y_test[-len(y_test_pred):] # 將y_test的長度調整為與 y_test_pred（模型預測值）的長度一致，確保在進行計算和可視化時，兩者長度相符。
+            save_prediction_plot(y_test, y_test_pred, write_result_out_dir) # 繪製y_test與y_test_pred的對比圖，展示預測值與實際值的偏差 (折線圖)
+            save_yy_plot(y_test, y_test_pred, write_result_out_dir) # 繪製y_test與y_test_pred的對比圖，展示預測值與實際值的偏差 (散點圖)
+            mse_score = save_mse(y_test, y_test_pred, write_result_out_dir, model=best_model) # 計算y_test和y_test_pred之間的均方誤差（MSE）分數，
             args["mse"] = mse_score
-            save_arguments(args, write_result_out_dir)
+            save_arguments(args, write_result_out_dir) # 保存本次訓練或測試的所有參數設定及結果。
 
-            # clear memory up
+            # clear memory up (清理記憶體)
             keras.backend.clear_session()
             print('\n' * 2 + '-' * 140 + '\n' * 2)
 
