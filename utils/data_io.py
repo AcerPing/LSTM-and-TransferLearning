@@ -84,8 +84,8 @@ class ReccurentTrainingGenerator(Sequence): # 在訓練LSTM模型時生成批次
         x_set     : 説明変数 (データ点数×特徴量数)のNumPy配列
         y_set     : 目的変数 (データ点数×1)のNumPy配列
         batch_size: バッチサイズ
-        timesteps : どの程度過去からデータをReccurent層に与えるか
-        delay     : 目的変数をどの程度遅らせるか
+        timesteps : どの程度過去からデータをReccurent層に与えるか (決定要從多遠的過去數據提供給 Recurrent 層)
+        delay     : 目的変数をどの程度遅らせるか (決定目標變數要延遲多長時間)
         """
         self.x = np.array(x_set) # 特徵數據
         self.y = np.array(y_set) # 標籤數據

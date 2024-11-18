@@ -1,4 +1,4 @@
-from os import path, listdir
+from os import path, walk, listdir
 import json
 
 def read_arguments(out_dir): 
@@ -16,13 +16,13 @@ def read_arguments(out_dir):
             args = json.load(f)
         return args
 
-out_dir = r'./result/transfer-learning/sru/' # reports/ air_quality
+out_dir = r'./reports/result/noise-injection/Debutanizer' #  air_quality
 args = read_arguments(out_dir)
 args
 print(args)
 
 # 遍历目录下的所有文件
-for root, dirs, files in os.walk(out_dir):
+for root, dirs, files in walk(out_dir):
     for file in files:
         if file == 'params.json':
             # file_path = os.path.join(root, file)
