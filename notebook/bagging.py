@@ -14,7 +14,7 @@ from sklearn.metrics import mean_squared_error as mse
 # 目錄設置
 target = 'sru'
 print(target)
-write_out_dir = '../reports/bagging_100'
+write_out_dir = '../reports/result' # '../reports/bagging_100'
 write_result_out_dir = path.join(write_out_dir, 'bagging', target)
 
 # load dataset (載入數據集)
@@ -41,7 +41,8 @@ size_test = prediction.shape[1] # ?測試數據的樣本數量。
 y_test = y_test[-size_test:] # 將 y_test 修正為與 size_test 長度相同，確保測試標籤與預測數據對齊。
 for i_prediction in range(prediction.shape[0])[:1]:
     pred = np.mean(prediction[:i_prediction + 1], axis=0) # 取第0個模型到第i_prediction個模型的預測，並取平均值作為集成預測結果，即集成預測值。
-    accuracy = mse(y_test, pred.flatten())
+    print(f'pred.shape: {pred.shape}')
+    accuracy = mse(y_test, pred.flatten()) # 與 y_test 的形狀一致
     list_score.append(accuracy)
 
 np.save('sru', prediction) # 將所有的預測結果保存為NumPy檔案(.npy)
