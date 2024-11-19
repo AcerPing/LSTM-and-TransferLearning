@@ -1,5 +1,5 @@
 import random
-import argparse
+import argparse # 解析命令列參數
 import json
 import math
 from os import path, getcwd, makedirs, environ, listdir
@@ -80,10 +80,10 @@ def save_arguments(args, out_dir): # 旨在將參數字典 args 以 JSON 格式�
 def make_callbacks(file_path, save_csv=True):
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5, min_lr=0.000001) # 降低學習率，以促進模型更好地收斂。 # --verbose=1,
     model_checkpoint = ModelCheckpoint(filepath=file_path, monitor='val_loss', save_best_only=True) # 保存最佳模型。 # -- save_weights_only = True,
+    # early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True) # -- 建議可以增加EarlyStopping
     if not save_csv:
         return [reduce_lr, model_checkpoint]
     csv_logger = CSVLogger(path.join(path.dirname(file_path), 'epoch_log.csv')) # 將每個訓練週期的損失和評估指標記錄到 CSV 文件中
-    # early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True) # -- 建議可以增加EarlyStopping
     return [reduce_lr, model_checkpoint, csv_logger] # -- early_stopping
  
 
@@ -365,6 +365,8 @@ def main():
             keras.backend.clear_session()
             print('\n' * 2 + '-' * 140 + '\n' * 2)
 
+    else:
+        print('No matchining train_mode')
 
 if __name__ == '__main__':
     main()
