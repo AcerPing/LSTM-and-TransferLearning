@@ -54,6 +54,6 @@ print(f'list_score: {list_score}')
 plt.plot(list_score) # 繪製折線圖
 plt.xlabel('the number of subsets / -') # 為X軸添加標籤，表示子集數量。
 plt.ylabel('MSE / -') # 為Y軸添加標籤，表示均方誤差（MSE）。
-plt.savefig( path.join(write_result_out_dir, target, 'bagging_sru') ) # 保存圖表
+plt.savefig( path.join(write_result_out_dir, 'bagging_sru') ) # 保存圖表
 
 print('おしまい')
