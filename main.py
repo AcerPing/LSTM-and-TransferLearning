@@ -23,7 +23,7 @@ from utils.data_io import (
 from utils.save import save_lr_curve, save_prediction_plot, save_yy_plot, save_mse
 from utils.device import limit_gpu_memory # 限制 TensorFlow 對 GPU 記憶體的預留或使用量。
 from reports.Record_args_while_training import Record_args_while_training # 紀錄訓練時的nb_batch、bsize、period
-from notebook.bagging import bagging
+from notebook.bagging import start_bagging
 
 
 def parse_arguments():
@@ -299,7 +299,7 @@ def main():
                     train_test_split(i_X_train, i_y_train, test_size=args["valid_ratio"], shuffle=False) # 每個子集分成訓練集和驗證集。
                 
                 # construct the model (每個子集將會訓練一個模型，這些模型最終將被集合使用，以增加預測的穩定性和泛化能力。)
-                file_path = path.join(model_dir, f'best_model_{i_subset}.hdf5')
+                file_path = path.join(model_dir, f'{target}_best_model_{i_subset}.hdf5')
                 callbacks = make_callbacks(file_path, save_csv=False)
                 input_shape = (period, i_X_train.shape[1])  # subsets_X_train.shape[2] is number of variable，因此i_X_train.shape[1] 對應的是特徵數，即 n_features。
                 print(f'input_shape: {input_shape}')
@@ -315,8 +315,8 @@ def main():
             keras.backend.clear_session() # 清理記憶體
             print('\n' * 2 + '-' * 140 + '\n' * 2)
 
-        # 使用建立好的子模型進行預測 
-        bagging(path.join(write_out_dir, args["train_mode"])) # 目錄設置
+        # 使用建立好的子模型進行預測與評估。
+        start_bagging(path.join(write_out_dir, args["train_mode"])) # 目錄設置
     
     elif args["train_mode"] == 'noise-injection': # 添加隨機噪聲來訓練模型，使模型在訓練過程中遇到更多的數據變化，減少過擬合並提高模型對測試數據的泛化能力。
 

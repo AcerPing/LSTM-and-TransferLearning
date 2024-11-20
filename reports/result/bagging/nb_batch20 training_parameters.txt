@@ -1,138 +1,138 @@
 
-[2024-11-17 18:06:47]
+[2024-11-20 12:48:42]
 訓練資料集 debutanizer 時的參數：
 Data Size (data_size): 2394
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 19
 Sequence Length (period): 79
 
-[2024-11-17 18:07:16]
+[2024-11-20 12:49:09]
 訓練資料集 debutanizer 時的參數：
 Data Size (data_size): 2394
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 19
 Sequence Length (period): 79
 
-[2024-11-17 18:07:44]
+[2024-11-20 12:49:38]
 訓練資料集 debutanizer 時的參數：
 Data Size (data_size): 2394
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 19
 Sequence Length (period): 79
 
-[2024-11-17 18:08:12]
+[2024-11-20 12:50:04]
 訓練資料集 debutanizer 時的參數：
 Data Size (data_size): 2394
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 19
 Sequence Length (period): 79
 
-[2024-11-17 18:08:39]
+[2024-11-20 12:50:33]
 訓練資料集 debutanizer 時的參數：
 Data Size (data_size): 2394
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 19
 Sequence Length (period): 79
 
-[2024-11-17 18:09:08]
+[2024-11-20 12:51:00]
 訓練資料集 debutanizer 時的參數：
 Data Size (data_size): 2394
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 19
 Sequence Length (period): 79
 
-[2024-11-17 18:09:37]
+[2024-11-20 12:51:28]
 訓練資料集 debutanizer 時的參數：
 Data Size (data_size): 2394
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 19
 Sequence Length (period): 79
 
-[2024-11-17 18:10:06]
+[2024-11-20 12:51:56]
 訓練資料集 debutanizer 時的參數：
 Data Size (data_size): 2394
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 19
 Sequence Length (period): 79
 
-[2024-11-17 18:10:36]
+[2024-11-20 12:52:24]
 訓練資料集 debutanizer 時的參數：
 Data Size (data_size): 2394
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 19
 Sequence Length (period): 79
 
-[2024-11-17 18:11:06]
+[2024-11-20 12:52:53]
 訓練資料集 debutanizer 時的參數：
 Data Size (data_size): 2394
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 19
 Sequence Length (period): 79
 
-[2024-11-17 18:11:36]
+[2024-11-20 12:53:23]
 訓練資料集 sru 時的參數：
 Data Size (data_size): 10081
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 80
 Sequence Length (period): 336
 
-[2024-11-17 18:12:54]
+[2024-11-20 12:54:39]
 訓練資料集 sru 時的參數：
 Data Size (data_size): 10081
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 80
 Sequence Length (period): 336
 
-[2024-11-17 18:14:10]
+[2024-11-20 12:55:55]
 訓練資料集 sru 時的參數：
 Data Size (data_size): 10081
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 80
 Sequence Length (period): 336
 
-[2024-11-17 18:15:26]
+[2024-11-20 12:57:13]
 訓練資料集 sru 時的參數：
 Data Size (data_size): 10081
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 80
 Sequence Length (period): 336
 
-[2024-11-17 18:16:46]
+[2024-11-20 12:58:34]
 訓練資料集 sru 時的參數：
 Data Size (data_size): 10081
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 80
 Sequence Length (period): 336
 
-[2024-11-17 18:18:04]
+[2024-11-20 12:59:50]
 訓練資料集 sru 時的參數：
 Data Size (data_size): 10081
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 80
 Sequence Length (period): 336
 
-[2024-11-17 18:19:23]
+[2024-11-20 13:01:09]
 訓練資料集 sru 時的參數：
 Data Size (data_size): 10081
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 80
 Sequence Length (period): 336
 
-[2024-11-17 18:20:39]
+[2024-11-20 13:02:24]
 訓練資料集 sru 時的參數：
 Data Size (data_size): 10081
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 80
 Sequence Length (period): 336
 
-[2024-11-17 18:21:57]
+[2024-11-20 13:03:42]
 訓練資料集 sru 時的參數：
 Data Size (data_size): 10081
 Number of Batches (args['nb_batch']): 20
 Batch Size (bsize): 80
 Sequence Length (period): 336
 
-[2024-11-17 18:23:15]
+[2024-11-20 13:05:01]
 訓練資料集 sru 時的參數：
 Data Size (data_size): 10081
 Number of Batches (args['nb_batch']): 20

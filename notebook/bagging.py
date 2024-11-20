@@ -21,7 +21,7 @@ def bagging(write_out_dir, target):
     print(f'bagging output directory: {write_result_out_dir}')
 
     # load dataset (載入數據集)
-    data_dir_path = path.join('..', 'dataset', 'target', target)
+    data_dir_path = path.join('.', 'dataset', 'target', target)
     X_train, y_train, X_test, y_test = \
         read_data_from_dataset(data_dir_path)
 
