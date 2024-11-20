@@ -1,11 +1,12 @@
 from os import path, listdir
-import sys
-sys.path.append('../') # 查找模組，是將上層目錄 (../) 添加到 Python 的模組搜索路徑中。
+# import sys
+# sys.path.append('../') # 查找模組，是將上層目錄 (../) 添加到 Python 的模組搜索路徑中。
 from utils.data_io import (
     read_data_from_dataset,
     ReccurentPredictingGenerator
 )
 import matplotlib.pyplot as plt
+import keras
 from keras.models import load_model
 from tqdm import tqdm # 顯示進度條，看到任務的完成進度。
 import numpy as np
@@ -62,9 +63,10 @@ def bagging(write_out_dir, target):
     plt.ylabel('MSE / -') # 為Y軸添加標籤，表示均方誤差（MSE）。
     plt.savefig( path.join(write_result_out_dir, 'bagging_sru') ) # 保存圖表
 
-def start_bagging(folder_name = 'bagging'):
-    write_out_dir = path.join('../reports/result/', folder_name) # 目錄設置
+def start_bagging(write_out_dir):
     folders = [f for f in listdir(write_out_dir) if path.isdir(path.join(write_out_dir, f))]
     for target in folders:
         bagging(write_out_dir, target)
+        keras.backend.clear_session() # 清理記憶體，防止內存堆積。
+        print('\n' * 2 + '-' * 140 + '\n' * 2)
     print('おしまい')
