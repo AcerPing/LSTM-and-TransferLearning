@@ -1,0 +1,10 @@
+debutanizer,sru
+base,air_quality
+air_quality,solar_energy
+metro_interstate,exchange_rate
+solar_energy,appliances
+beijing_pm2.5,electricity
+electricity,traffic
+traffic,beijing_pm2.5
+exchange_rate,base
+appliances,metro_interstate

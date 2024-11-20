@@ -22,6 +22,7 @@ from utils.data_io import (
 )
 from utils.save import save_lr_curve, save_prediction_plot, save_yy_plot, save_mse
 from utils.device import limit_gpu_memory # 限制 TensorFlow 對 GPU 記憶體的預留或使用量。
+from utils.output import comparison # 比較 Transfer-Learning遷移學習 vs. Without-Transfer-Learning不使用遷移學習
 from reports.Record_args_while_training import Record_args_while_training # 紀錄訓練時的nb_batch、bsize、period
 from notebook.bagging import start_bagging
 
@@ -41,7 +42,7 @@ def parse_arguments():
                     help='length of time to capture at once (default : 1000)') # 設定時間窗口為 1000。這可能代表模型在一次處理過程中觀察的資料長度或時間範圍。
     # for training
     ap.add_argument('--train-mode', '-m', default='pre-train', type=str,
-                    help='"pre-train", "transfer-learning", "without-transfer-learning", \
+                    help='"pre-train", "transfer-learning", "without-transfer-learning", "comparison"\
                             "bagging", "noise-injection", "score" (default : pre-train)') # 設定模式
     ap.add_argument('--gpu', action='store_true',
                     help='whether to do calculations on gpu machines (default : False)') # 是否啟用GPU加速
@@ -257,6 +258,9 @@ def main():
             # clear memory up (清理記憶體)
             keras.backend.clear_session()
             print('\n' * 2 + '-' * 140 + '\n' * 2)
+    
+    elif args["train_mode"] == 'comparison': # 比較 Transfer-Learning遷移學習 vs. Without-Transfer-Learning不使用遷移學習
+        comparison(out_dir=write_out_dir, train_mode=args["train_mode"])
 
     elif args["train_mode"] == 'bagging': # 使用Bagging集成式學習。通過對數據集進行多次重抽樣，生成多個訓練子集，並在這些子集上訓練多個模型，最終通過聚合來提升預測穩定性。如隨機森林算法。
     
