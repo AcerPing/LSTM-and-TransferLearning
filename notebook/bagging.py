@@ -45,7 +45,7 @@ for i_prediction in range(prediction.shape[0]): # [:1]若僅只包含第0個模�
     accuracy = mse(y_test, pred.flatten()) # 與 y_test 的形狀一致
     list_score.append(accuracy)
 
-np.save( path.join(write_result_out_dir, target), prediction) # 將所有的預測結果保存為NumPy檔案(.npy)
+np.save( path.join(write_result_out_dir, target), prediction) # 將所有的預測結果保存為NumPy檔案(.npy)，可用np.load讀取資料。
 
 plt.rcParams['font.size'] = 25 # 設定字體大小
 plt.figure(figsize=(15, 7)) # 建立圖表
