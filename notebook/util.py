@@ -6,14 +6,27 @@ from sklearn.metrics import mean_squared_error as mse
 import pandas as pd
 import numpy as np
 import matplotlib
+from matplotlib import rcParams
+from matplotlib import font_manager
 import matplotlib.pyplot as plt
-# import seaborn as sns
 
+# import seaborn as sns
 # sns.set(font_scale=1.4, font="Times New Roman") # 設定 Seaborn 圖表中的字體和字體大小。
 # sns.set_style("ticks", {'font.family':'serif', 'font.serif':'Times New Roman'}) # 設定 Seaborn 圖表的樣式和字體。
+
 plt.rcParams["xtick.direction"] = "in" # 控制Matplotlib圖表的x軸刻度線方向。"in"：刻度線指向圖表內部。
 plt.rcParams["ytick.direction"] = "in" # 控制Matplotlib圖表的y軸刻度線方向。"in"：刻度線指向圖表內部。
-matplotlib.rcParams['font.family'] = 'Noto Sans CJK JP' # # 設置日文字體，例如 Noto Sans CJK JP
+
+# 設置日文字體，例如 Noto Sans CJK JP
+# matplotlib.rcParams['font.family'] = 'Noto Sans CJK JP'  
+
+# 設定中文字體，例如 Noto Sans CJK 字體為默認字體
+font_path = '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc'
+chinese_font = font_manager.FontProperties(fname=font_path)
+rcParams['font.sans-serif'] = ['Noto Sans CJK SC']
+rcParams['font.family'] = chinese_font.get_name()
+rcParams['axes.unicode_minus'] = False  # 解決負號顯示問題
+
 
 def dataset_idx_vs_improvement(out_dir, train_mode, diff_cal=None): # feature_make
     '''
@@ -89,7 +102,7 @@ def dataset_idx_vs_improvement(out_dir, train_mode, diff_cal=None): # feature_ma
         plt.title(f'{target}')
         plt.legend(loc='best') # 顯示標籤資訊。
     plt.tight_layout() # ：自動調整子圖間距，避免重疊。
-    plt.savefig( path.join(base_out_dir, '特徵相似性與MSE的關係圖') ) # 保存圖表
+    plt.savefig( path.join(base_out_dir, '特徵相似性與MSE的關係圖'), bbox_inches='tight' ) # 保存圖表
 
     # plot dataset_idx rank vs improvement (繪製相似性排序與改進程度的關係圖)
     plt.figure(figsize=(20, 10))  # # 調整畫布大小以避免擠壓。 整體畫布寬度 12 英吋，高度 6 英吋
@@ -117,4 +130,4 @@ def dataset_idx_vs_improvement(out_dir, train_mode, diff_cal=None): # feature_ma
         target = target.capitalize() if target == 'debutanizer' else target.upper()
         plt.title(f'({"ab"[idx]}) {target}')
     plt.tight_layout()
-    plt.savefig( path.join(base_out_dir, '特徵相似性與MSE改進程度的關係圖') ) # 保存圖表
+    plt.savefig( path.join(base_out_dir, '特徵相似性與MSE改進程度的關係圖'), bbox_inches='tight' ) # 保存圖表
