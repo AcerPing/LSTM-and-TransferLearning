@@ -101,7 +101,7 @@ def main():
     
     print('-' * 140)
     
-    print(f'train_mode: {args["train_mode"]}')
+    print(f'train_mode: {args["train_mode"]} \n')
     if args["train_mode"] == 'pre-train': # 以預訓練模式執行模型訓練。
         
         for source in listdir('dataset/source'): # 逐個處理來源數據集

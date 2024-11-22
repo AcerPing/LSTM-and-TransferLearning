@@ -38,7 +38,7 @@ def comparison(out_dir, train_mode):
         print()
         row.append(base_mse)
         tl.append(row)
-    print('※ MSE value in ()')
+    print('※ MSE value in () \n')
     
     # 將結果保存為 DataFrame
     tl = pd.DataFrame(np.array(tl), columns=source_dir+['base'], index=target_dir)

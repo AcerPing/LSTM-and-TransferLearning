@@ -9,23 +9,7 @@ import matplotlib
 from matplotlib import rcParams
 from matplotlib import font_manager
 import matplotlib.pyplot as plt
-
 # import seaborn as sns
-# sns.set(font_scale=1.4, font="Times New Roman") # 設定 Seaborn 圖表中的字體和字體大小。
-# sns.set_style("ticks", {'font.family':'serif', 'font.serif':'Times New Roman'}) # 設定 Seaborn 圖表的樣式和字體。
-
-plt.rcParams["xtick.direction"] = "in" # 控制Matplotlib圖表的x軸刻度線方向。"in"：刻度線指向圖表內部。
-plt.rcParams["ytick.direction"] = "in" # 控制Matplotlib圖表的y軸刻度線方向。"in"：刻度線指向圖表內部。
-
-# 設置日文字體，例如 Noto Sans CJK JP
-# matplotlib.rcParams['font.family'] = 'Noto Sans CJK JP'  
-
-# 設定中文字體，例如 Noto Sans CJK 字體為默認字體
-font_path = '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc'
-chinese_font = font_manager.FontProperties(fname=font_path)
-rcParams['font.sans-serif'] = ['Noto Sans CJK SC']
-rcParams['font.family'] = chinese_font.get_name()
-rcParams['axes.unicode_minus'] = False  # 解決負號顯示問題
 
 
 def dataset_idx_vs_improvement(out_dir, train_mode, diff_cal=None): # feature_make
@@ -34,6 +18,21 @@ def dataset_idx_vs_improvement(out_dir, train_mode, diff_cal=None): # feature_ma
     本程式碼通過 動態時間規劃 和 曼哈頓距離 測量資料序列之間的相似程度。
     結果中數值越小，代表序列越相似；數值越大，代表差異越大。
     '''
+    # matplotlib 設定
+    # sns.set(font_scale=1.4, font="Times New Roman") # 設定 Seaborn 圖表中的字體和字體大小。
+    # sns.set_style("ticks", {'font.family':'serif', 'font.serif':'Times New Roman'}) # 設定 Seaborn 圖表的樣式和字體。
+    plt.rcParams["xtick.direction"] = "in" # 控制Matplotlib圖表的x軸刻度線方向。"in"：刻度線指向圖表內部。
+    plt.rcParams["ytick.direction"] = "in" # 控制Matplotlib圖表的y軸刻度線方向。"in"：刻度線指向圖表內部。
+
+    # matplotlib 字體設定
+    # matplotlib.rcParams['font.family'] = 'Noto Sans CJK JP' # 設置日文字體，例如 Noto Sans CJK JP
+    # 設定中文字體，例如 Noto Sans CJK 字體為默認字體
+    font_path = '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc'
+    chinese_font = font_manager.FontProperties(fname=font_path)
+    rcParams['font.family'] = ['Noto Sans CJK SC', chinese_font.get_name()] + rcParams['font.family']
+    rcParams['axes.unicode_minus'] = False  # 解決負號顯示問題
+    rcParams['font.sans-serif'] = ['Noto Sans CJK SC'] + rcParams['font.sans-serif'] # 其他備選字體
+
     # load dataset (載入數據集)
     source_path = './dataset/source/'
     data_dict = {}
