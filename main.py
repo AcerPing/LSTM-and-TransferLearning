@@ -24,7 +24,8 @@ from utils.save import save_lr_curve, save_prediction_plot, save_yy_plot, save_m
 from utils.device import limit_gpu_memory # 限制 TensorFlow 對 GPU 記憶體的預留或使用量。
 from utils.output import comparison # 比較 Transfer-Learning遷移學習 vs. Without-Transfer-Learning不使用遷移學習
 from reports.Record_args_while_training import Record_args_while_training # 紀錄訓練時的nb_batch、bsize、period
-from notebook.bagging import start_bagging
+from notebook.bagging import start_bagging # 集成式學習的預測與評估
+from notebook.util import dataset_idx_vs_improvement
 
 
 def parse_arguments():
@@ -261,6 +262,7 @@ def main():
     
     elif args["train_mode"] == 'comparison': # 比較 Transfer-Learning遷移學習 vs. Without-Transfer-Learning不使用遷移學習
         comparison(out_dir=write_out_dir, train_mode=args["train_mode"])
+        dataset_idx_vs_improvement(out_dir=write_out_dir, train_mode=args["train_mode"], diff_cal='DTW')
 
     elif args["train_mode"] == 'bagging': # 使用Bagging集成式學習。通過對數據集進行多次重抽樣，生成多個訓練子集，並在這些子集上訓練多個模型，最終通過聚合來提升預測穩定性。如隨機森林算法。
     
